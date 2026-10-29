@@ -292,14 +292,39 @@ regDiv.onclick = e => { const r = e.target.dataset?.r; if (r === undefined) retu
 // En el móvil el panel tapa la parte de abajo del mapa: se encuadra en lo que queda libre
 const movil = () => matchMedia('(max-width: 800px)').matches;
 function fitTo(b, pad, maxZoom) {
-  const abajo = movil() ? $('#side').offsetHeight : 0;
+  const abajo = movil() ? sheetPx($('#side').dataset.h) : 0;
   map.fitBounds(b, { paddingTopLeft: [pad, pad + (movil() ? 40 : 0)], paddingBottomRight: [pad, pad + abajo], maxZoom });
 }
-function setSheet(h) { // min | mid | max
-  if (!movil()) return;
-  const side = $('#side'); side.dataset.h = h;
+// Panel del móvil: min (solo el título) | mid | max; se arrastra desde la barrita o el título
+const SHEET_MIN = 58;
+const sheetPx = h => h === 'min' ? SHEET_MIN : h === 'max' ? innerHeight * .88 : innerHeight * .46;
+function setSheet(h) { if (movil()) $('#side').dataset.h = h; }
+function cycleSheet() { setSheet($('#side').dataset.h === 'min' ? 'mid' : 'min'); }
+{
+  const side = $('#side'); let y0 = null, h0 = 0, moved = false;
+  const zona = e => e.target.closest('#handle, header') && !e.target.closest('button');
+  side.addEventListener('pointerdown', e => {
+    if (!movil() || !zona(e)) return;
+    y0 = e.clientY; h0 = side.offsetHeight; moved = false;
+    side.setPointerCapture(e.pointerId); side.style.transition = 'none';
+  });
+  side.addEventListener('pointermove', e => {
+    if (y0 == null) return;
+    const dy = e.clientY - y0; if (Math.abs(dy) > 6) moved = true;
+    if (moved) side.style.height = Math.max(SHEET_MIN, Math.min(innerHeight * .92, h0 - dy)) + 'px';
+  });
+  const fin = () => {
+    if (y0 == null) return;
+    const h = side.offsetHeight, subiendo = h > h0; y0 = null;
+    side.style.transition = ''; side.style.height = '';
+    if (!moved) return cycleSheet();
+    // se queda en la posición más cercana en el sentido en que movías el dedo
+    const orden = ['min', 'mid', 'max'].filter(k => subiendo ? sheetPx(k) >= h - 40 : sheetPx(k) <= h + 40);
+    setSheet(subiendo ? orden[0] || 'max' : orden[orden.length - 1] || 'min');
+  };
+  side.addEventListener('pointerup', fin); side.addEventListener('pointercancel', fin);
 }
-function cycleSheet() { const h = $('#side').dataset.h || 'mid'; setSheet(h === 'min' ? 'mid' : h === 'mid' ? 'max' : 'min'); }
+map.on('click', () => { if (movil() && $('#side').dataset.h !== 'min') setSheet('min'); });
 function fitSel() {
   const ids = Object.keys(S.sel).map(Number).filter(id => S.byId.has(id));
   if (!ids.length) return toast('Aún no has elegido rutas: ve a «☆ Elegir rutas».');

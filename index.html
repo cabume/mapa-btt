@@ -89,11 +89,12 @@
     #map { position:fixed; inset:0; }
     #side { position:fixed; left:0; right:0; bottom:0; width:auto; min-width:0; height:46vh; z-index:1000; border-right:0;
             border-radius:14px 14px 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.45); transition:height .25s; }
-    #side[data-h=min] { height:122px; }
+    #side[data-h=min] { height:58px; }
+    #side[data-h=min] .stats, #side[data-h=min] .tabs, #side[data-h=min] #body, #side[data-h=min] #status { display:none; }
     #side[data-h=max] { height:88vh; }
-    #handle { display:block; height:22px; cursor:pointer; flex:none; }
-    #handle::before { content:''; display:block; width:46px; height:5px; border-radius:3px; background:#56645a; margin:8px auto 0; }
-    header { padding:0 14px; }
+    #handle { display:block; height:24px; cursor:grab; flex:none; touch-action:none; }
+    #handle::before { content:''; display:block; width:46px; height:5px; border-radius:3px; background:#6a7a6c; margin:9px auto 0; }
+    header { padding:0 14px; touch-action:none; cursor:grab; }
     header h1 { font-size:17px; }
     .stats { margin:2px 0 6px; }
     .tabs button { padding:7px; }
@@ -110,7 +111,7 @@
 </head>
 <body>
 <aside id="side">
-  <div id="handle" onclick="cycleSheet()" title="Subir / bajar la lista"></div>
+  <div id="handle" title="Arrastra para subir o bajar la lista"></div>
   <header>
     <h1>🚵 <span>Mi Mapa BTT</span><button class="ico" title="Ajustes y Strava" onclick="openSettings()">⚙️</button></h1>
     <div class="stats" id="stats"></div>

@@ -1,5 +1,5 @@
 // Mi Mapa BTT: guarda la app para que abra aunque el servidor local ya se haya cerrado.
-const CACHE = 'mimapabtt-v2';
+const CACHE = 'mimapabtt-v3';
 const FILES = ['./', 'index.html', 'app.js', 'manifest.json', 'icon-192.png', 'lib/leaflet.js', 'lib/leaflet.css', 'lib/images/layers.png', 'lib/images/layers-2x.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
